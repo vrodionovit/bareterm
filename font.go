@@ -48,10 +48,11 @@ func (f *Font) GetCharTexture(char rune) uint32 {
 		return texture
 	}
 
-	// Create a new texture for this character
+	// Проверка наличия глифа
 	bounds, advance, ok := f.face.GlyphBounds(char)
 	if !ok {
-		return 0
+		// Обработка случая, когда глиф отсутствует
+		return 0 // или какое-то значение по умолчанию
 	}
 
 	width := int(advance.Round())
