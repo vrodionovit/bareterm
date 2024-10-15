@@ -14,6 +14,8 @@ import (
 type Font struct {
 	face     font.Face
 	textures map[rune]uint32
+	size     int
+	path     string
 }
 
 func NewFont(path string, size int) (*Font, error) {
@@ -36,6 +38,8 @@ func NewFont(path string, size int) (*Font, error) {
 	return &Font{
 		face:     face,
 		textures: make(map[rune]uint32),
+		size:     size,
+		path:     path,
 	}, nil
 }
 
