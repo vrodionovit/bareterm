@@ -18,8 +18,27 @@ type Font struct {
 	path     string
 }
 
-func NewFont(path string, size int) (*Font, error) {
-	fontBytes, err := ioutil.ReadFile(path)
+func NewFont(size int) (*Font, error) {
+	// Пути к возможным шрифтам
+	fontPaths := []string{
+		"/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+		"/usr/share/fonts/liberation-mono/LiberationMono-Regular.ttf",
+		"/usr/share/fonts/TTF/LiberationMono-Regular.ttf",
+	}
+
+	var fontBytes []byte
+	var err error
+	var path string
+
+	// Пробуем загрузить шрифт из разных мест
+	for _, fontPath := range fontPaths {
+		fontBytes, err = ioutil.ReadFile(fontPath)
+		if err == nil {
+			path = fontPath
+			break
+		}
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to read font file: %v", err)
 	}
@@ -51,12 +70,17 @@ func (f *Font) GetCharTexture(char rune) uint32 {
 	// Проверка наличия глифа
 	bounds, advance, ok := f.face.GlyphBounds(char)
 	if !ok {
-		// Обработка случая, когда глиф отсутствует
+		fmt.Printf("Warning: Glyph not found for character %c (code %d)\n", char, char)
 		return 0 // или какое-то значение по умолчанию
 	}
 
 	width := int(advance.Round())
 	height := bounds.Max.Y.Round() - bounds.Min.Y.Round()
+
+	if width <= 0 || height <= 0 {
+		fmt.Printf("Warning: Invalid dimensions for character %c: %dx%d\n", char, width, height)
+		return 0
+	}
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	d := &font.Drawer{
@@ -66,6 +90,11 @@ func (f *Font) GetCharTexture(char rune) uint32 {
 		Dot:  fixed.Point26_6{X: -bounds.Min.X, Y: -bounds.Min.Y},
 	}
 	d.DrawString(string(char))
+
+	if len(img.Pix) == 0 {
+		fmt.Printf("Warning: Empty image for character %c\n", char)
+		return 0
+	}
 
 	var texture uint32
 	gl.GenTextures(1, &texture)

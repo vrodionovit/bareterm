@@ -68,7 +68,7 @@ func NewTermGrid(width, height int, rows, cols int) (*TermGrid, error) {
 	window.SetSizeCallback(grid.ResizeCallback)
 
 	// Создаем шрифт для отрисовки текста
-	grid.font, err = NewFont("DejaVuSansMono.ttf", int(grid.cellSize[1]))
+	grid.font, err = NewFont(int(grid.cellSize[1]))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create font: %v", err)
 	}
@@ -82,7 +82,7 @@ func (g *TermGrid) SetTextColor(color [4]float32) {
 }
 
 func (g *TermGrid) SetFontSize(newSize int) error {
-	newFont, err := NewFont(g.font.path, newSize)
+	newFont, err := NewFont(newSize)
 	if err != nil {
 		return fmt.Errorf("failed to create new font: %v", err)
 	}
@@ -286,7 +286,7 @@ func (g *TermGrid) ResizeCallback(w *glfw.Window, width int, height int) {
 	// Обновляем размер шрифта, если необходимо
 	newFontSize := int(g.cellSize[1])
 	if g.font.size != newFontSize {
-		newFont, err := NewFont(g.font.path, newFontSize)
+		newFont, err := NewFont(newFontSize)
 		if err == nil {
 			g.font.Destroy() // Освобождаем ресурсы старого шрифта
 			g.font = newFont
