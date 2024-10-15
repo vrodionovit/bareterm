@@ -21,9 +21,8 @@ type Font struct {
 func NewFont(size int) (*Font, error) {
 	// Пути к возможным шрифтам
 	fontPaths := []string{
-		"/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
-		"/usr/share/fonts/liberation-mono/LiberationMono-Regular.ttf",
-		"/usr/share/fonts/TTF/LiberationMono-Regular.ttf",
+		"/usr/share/fonts/truetype/noto/NotoSansMono-Regular.ttf",
+		"/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
 	}
 
 	var fontBytes []byte
