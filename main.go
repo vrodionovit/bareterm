@@ -4,6 +4,7 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
@@ -21,19 +22,22 @@ func main() {
 	// Отложенный вызов Terminate() гарантирует, что GLFW будет корректно завершен при выходе из программы.
 	defer glfw.Terminate()
 
+	// Создание окна с явным указанием названия
+	window, err := glfw.CreateWindow(800, 600, "Bareterm Terminal Emulator", nil, nil)
+	if err != nil {
+		log.Fatalln("failed to create window:", err)
+	}
+
 	// Создание нового экземпляра TermGrid с заданными размерами окна и сетки.
 	grid, err := NewTermGrid(800, 600, 20, 40)
 	if err != nil {
 		log.Fatalln("failed to create TermGrid:", err)
 	}
-	// Отложенный вызов Destroy() освобождает ресурсы, занятые TermGrid.
 	defer grid.Destroy()
 
-	// Установка начального текста в сетке.
 	grid.SetText("Hello, TermGrid!")
 
-	// Установка обработчика клавиатурных событий.
-	grid.window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 		if action == glfw.Press || action == glfw.Repeat {
 			if key == glfw.KeyEscape {
 				// Закрытие окна при нажатии Escape.
@@ -51,6 +55,16 @@ func main() {
 		}
 	})
 
-	// Основной цикл приложения.
-	grid.Run()
+	// Основной цикл приложения с явным рендерингом
+	for !window.ShouldClose() {
+		// Очистка экрана
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		// Рендеринг TermGrid
+		grid.Render()
+
+		// Обмен буферов и обработка событий
+		window.SwapBuffers()
+		glfw.PollEvents()
+	}
 }
